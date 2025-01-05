@@ -1,2 +1,3 @@
 # tee-baseplate
- A baseplate for tee-related programs
+
+A customizable baseplate for all tee-related programs.
