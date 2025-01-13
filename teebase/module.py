@@ -2,20 +2,21 @@ import subprocess
 import time
 import re
 import os
-import pygetwindow as gw
-
 from pywinauto import Application
-
 import pyautogui as pg
+
 pg.FAILSAFE = False
+
 class teeController:
-    def __init__(self, window_name, username, host, timeout, delay):
+    def __init__(self, window_name: str, username: str, host: str, timeout: int, delay: int, manualMode=False):
         self.window_name = window_name
         self.timeout = timeout
         self.username = username
         self.logname = str(time.strftime("%Y%m%d")) + "_" + window_name + ".log"
         self.host = host
         self.delay = delay / 1000
+        self.manualMode = manualMode
+
 
     def display_info(self):
         return f'''
@@ -25,15 +26,25 @@ class teeController:
         Username: {self.username}
         Logname: {self.logname}
         Host: {self.host}
+        Manual Mode: {self.manualMode}
         '''
     
     def start(self):
-        commands = [
-            "title " + self.window_name,
-            "wsl ssh " + self.username + "@" + self.host + " -p 2222 | wsl tee " + self.logname
-        ]
-        command = "&& ".join(commands)
-        process = subprocess.Popen(["wt", "-d", ".", "cmd", "/k", command])
+        if not self.manualMode:
+            commands = [
+                "title " + self.window_name,
+                "wsl ssh " + self.username + "@" + self.host + " -p 2222 | wsl tee " + self.logname
+            ]
+            command = "&& ".join(commands)
+            process = subprocess.Popen(["wt", "-d", ".", "cmd", "/k", command])
+        else:
+            commands = [
+                "ssh " + self.username + "@" + self.host + " -p 2222 | " + os.path.join(os.path.dirname(__file__), 'tee-x64.exe') + " " + self.logname
+            ]
+            command = "&& ".join(commands)
+            process = subprocess.Popen(["wt", "-d", ".", "--title", self.window_name, "--suppressApplicationTitle", "cmd", "/k", command])
+            #pg.alert(text=f"Please manually set the window's title to {self.window_name}", title='WARNING', button='OK')
+
         while not os.path.exists(self.logname):
             time.sleep(1)
         print(f"Process started on PID: {process.pid}")
