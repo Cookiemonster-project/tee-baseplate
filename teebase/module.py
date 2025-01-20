@@ -73,7 +73,10 @@ class teeController:
         start_time = time.time()
         while True:
             old = out
-            out = self.readLast(1)[0]
+            try:
+                out = self.readLast(1)[0]
+            except:
+                continue
             if old == out and any(char in out[len(out)-3:] for char in [">", ":", "@", "$", "%"]):
                 break
             if time.time() - start_time > self.timeout:
@@ -85,7 +88,10 @@ class teeController:
     def awaitString(self, string):
         start_time = time.time()
         while True:
-            last = self.readLast(1)[0]
+            try:
+                last = self.readLast(1)[0]
+            except:
+                continue
             if string in last:
                 return True
             if time.time() - start_time > self.timeout:
@@ -95,12 +101,13 @@ class teeController:
 
 
     def focusWindow(self):
-        app = Application().connect(title=self.window_name)
-        window = app.window(title=self.window_name)
-        if window.exists(timeout=self.timeout):
+        try:
+            app = Application().connect(title=self.window_name)
+            window = app.window(title=self.window_name)
+
             window.set_focus()
             return True
-        else:
+        except:
             print(f"Window '{self.window_name}' not found.")
             return False
 
