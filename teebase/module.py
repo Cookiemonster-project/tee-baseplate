@@ -13,7 +13,7 @@ class teeController:
         self.window_name = window_name
         self.timeout = timeout
         self.username = username
-        self.logname = str(time.strftime("%Y%m%d")) + "_" + window_name + ".log"
+        self.logname = str(time.strftime("%Y%m%d")) + ".log"
         self.host = host
         self.delay = delay / 1000
 
