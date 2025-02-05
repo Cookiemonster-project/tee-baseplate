@@ -12,7 +12,7 @@ class teeController:
         self.window_name = window_name
         self.timeout = timeout
         self.username = username
-        self.logname = str(time.strftime("%Y%m%d")) + "_" + window_name + ".log"
+        self.logname = str(time.strftime("%Y%m%d")) + ".log"
         self.host = host
         self.delay = delay / 1000
         self.manualMode = manualMode
@@ -85,8 +85,10 @@ class teeController:
             time.sleep(self.delay)
         return True
     
-    def awaitString(self, string):
+    def awaitString(self, string, timeout = -1):
         start_time = time.time()
+        if timeout == -1:
+            timeout = self.timeout
         while True:
             try:
                 last = self.readLast(1)[0]
@@ -94,7 +96,7 @@ class teeController:
                 continue
             if string in last:
                 return True
-            if time.time() - start_time > self.timeout:
+            if time.time() - start_time > timeout:
                 print("Timeout reached while waiting for string.")
                 return False
             time.sleep(self.delay)
